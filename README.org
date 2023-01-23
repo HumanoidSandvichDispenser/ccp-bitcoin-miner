@@ -4,8 +4,8 @@
 TTS with syntax based on/similar to notaistreamer's Forsen TTS donation system.
 
 #+begin_center
-[[https://cdn.7tv.app/emote/6109df1e49dcebc8a39247eb/3x.webp]]
-+10 BTC +10 社会信用
+[[./assets/7tv.gif]]
++1 BTC +10 社会信用
 #+end_center
 
 * Installation
@@ -62,5 +62,5 @@ The filters are the same as notaistreamer's filters (with the exception that /ev
 
 Sound effects are mostly the same, except that sound names can be anything;  ~[abc]~ will use the file ~sound-effects/abc.wav~.
 
-Sound effects are not included yet because I'm too lazy to download every single one [[https://cdn.betterttv.net/emote/629c6ed23c6f14b688498e2f/1x.webp]] but you can include your own sound effects in the ~sound-effects~ directory.
+Sound effects are not included yet because I'm too lazy to download every single one, but you can include your own sound effects in the ~sound-effects~ directory.
 
