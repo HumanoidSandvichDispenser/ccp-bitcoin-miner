@@ -1,0 +1,66 @@
+#+title: Bitcoin Miner for Chinese Communist Party
+#+author: HumanoidSandvichDispenser
+
+TTS with syntax based on/similar to notaistreamer's Forsen TTS donation system.
+
+#+begin_center
+[[https://cdn.7tv.app/emote/6109df1e49dcebc8a39247eb/3x.webp]]
++10 BTC +10 社会信用
+#+end_center
+
+* Installation
+
+Required:
+
+- Python >= 3.8
+- Pytorch 1
+- sox (for sound filters)
+
+Then install the rest (in a virtual env)
+
+#+begin_example
+pip install -r requirements.txt
+#+end_example
+
+** Tacotron Models
+
+Run/edit ~download-models.py~ to download models I have already trained (not trained with ARPABET). If you want to use your own models, place them in the ~models~ directory.
+
+* Usage
+
+Run ~main.py~ to launch interactive prompt or run ~main.py -~ to read from standard input.
+
+To use CPU for inference: ~main.py --cpu~
+
+You can also set the number of cores (in this example, 2): ~main.py --cpu --cores 2~
+
+** Models/Speakers
+
+Using the syntax ~speaker: ...rest of message~ will use the file ~models/speaker~.
+
+** Filters
+
+The filters are the same as notaistreamer's filters (with the exception that /every/ filter can stack as much as you want).
+
+#+begin_example
+{1}  room echo
+{2}  hall echo
+{3}  outside echo
+{4}  pitch down
+{5}  pitch up
+{6}  telephone
+{7}  muffled
+{8}  quieter
+{9}  ghost
+{10} chorus
+{11} slow down
+{12} speed up
+{.}  stop previous filter
+#+end_example
+
+** Sound Effects
+
+Sound effects are mostly the same, except that sound names can be anything;  ~[abc]~ will use the file ~sound-effects/abc.wav~.
+
+Sound effects are not included yet because I'm too lazy to download every single one [[https://cdn.betterttv.net/emote/629c6ed23c6f14b688498e2f/1x.webp]] but you can include your own sound effects in the ~sound-effects~ directory.
+
