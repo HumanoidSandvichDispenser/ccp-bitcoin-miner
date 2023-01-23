@@ -10,9 +10,13 @@ import soundfile as sf
 import sox
 import os
 import shutil
+import subprocess
 
 
 BUFFER_PATH = ".buffer"
+EFFECTS_PATH = "sound-effects"
+FILTERS_PATH = "sound-filters"
+
 speech_synthesizer: BitcoinMiner
 
 
@@ -123,13 +127,10 @@ class SoundEffect(Sound):
 
     def synthesize(self):
         print("Synthesizing sound effect %s" % self.index)
-        if os.path.exists("sound-effects/%s.wav" % self.index):
-            shutil.copy("sound-effects/%s.wav" % self.index, self.outfile)
+        sound_file = f"{EFFECTS_PATH}/${self.index}.mp3"
+        if os.path.exists(sound_file):
+            shutil.copy(sound_file, self.outfile)
             return True
-        #elif os.path.exists("sound-effects/%s.mp3" % self.index):
-        #    buf: AudioSegment
-        #    buf = AudioSegment().from_mp3("sound-effects/%s.mp3" % self.index)
-        #    buf.export(self.outfile, format="wav")
 
     def __str__(self) -> str:
         return "SoundEffect(%d)" % self.index
@@ -144,6 +145,24 @@ class SoundFilter(Token):
             return False
 
         tfm = sox.Transformer()
+
+        if os.path.exists(f"{FILTERS_PATH}/{self.index}"):
+            try:
+                return_code = subprocess.call([f"{FILTERS_PATH}/{self.index}",
+                                 self.group.outfile,
+                                 self.outfile])
+                return return_code == 0
+            except PermissionError:
+                print(f"Permission denied while processing {self.index}. " +
+                      "Does the file have execute (+x) permission?")
+                print("Failed synthesizing filter. Synthesizing without filter.")
+                shutil.copy(self.group.outfile, self.outfile)
+                return True
+            except FileNotFoundError:
+                print(f"{FILTERS_PATH}/{self.index} does not exist.")
+                print("Failed synthesizing filter. Synthesizing without filter.")
+                shutil.copy(self.group.outfile, self.outfile)
+                return True
 
         if self.index == "1":
             # room echo
@@ -186,9 +205,6 @@ class SoundFilter(Token):
         elif self.index == "12":
             # speed up
             tfm.tempo(1.5)
-        elif self.index == "13":
-            # velcuz real voice
-            tfm.treble(4).bass(-4).pitch(2)
 
         print("Synthesizing filter %s" % self.index)
         tfm.build_file(self.group.outfile, self.outfile)
