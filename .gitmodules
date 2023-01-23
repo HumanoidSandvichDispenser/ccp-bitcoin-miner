@@ -1,0 +1,6 @@
+[submodule "hifi-gan"]
+	path = hifigan
+	url = https://github.com/SortAnon/hifi-gan
+[submodule "tacotron2"]
+	path = tacotron2
+	url = https://github.com/humanoidsandvichdispenser/tacotron2
