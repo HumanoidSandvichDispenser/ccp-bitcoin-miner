@@ -1,0 +1,12 @@
+matplotlib>=3.0
+tensorflow>=2.9
+inflect==0.2.5
+librosa==0.8.0
+scipy
+Unidecode==1.0.22
+pillow
+numpy
+gdown
+pysndfx
+pydub
+click
