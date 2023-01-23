@@ -7,13 +7,12 @@
 
 from bitcoin_miner import BitcoinMiner
 import soundfile as sf
-from enum import Enum
-from pydub import AudioSegment
-from pysndfx import AudioEffectsChain  # replace with pysox
+import sox
 import os
 import shutil
 
 
+BUFFER_PATH = ".buffer"
 speech_synthesizer: BitcoinMiner
 
 
@@ -30,7 +29,7 @@ class Token:
         return self
 
     def gen_file_name(self, id: int):
-        self.outfile = ".buffer/%03d.wav" % id
+        self.outfile = "%s/%03d.wav" % (BUFFER_PATH, id)
         return id + 1
 
 
@@ -44,13 +43,19 @@ class Group(Token):
         if len(self.tokens) == 0:
             return False
 
-        buffer = AudioSegment.empty()
+        #buffer = AudioSegment.empty()
+        combiner = sox.Combiner()
+        filenames: list[str] = []
 
         for token in self.tokens:
             if token.synthesize():
-                buffer += AudioSegment.from_wav(token.outfile)
-        print("Synthesizing group...")
-        buffer.export(self.outfile, format="wav")
+                filenames.append(token.outfile)
+        print("Synthesizing group: " + ", ".join(filenames))
+        if len(filenames) > 1:
+            combiner.build(filenames, self.outfile, "concatenate")
+        else:
+            #combiner.build(filenames, self.outfile, "concatenate")
+            shutil.copy(filenames[0], self.outfile)
         return True
 
     def __str__(self) -> str:
@@ -74,7 +79,7 @@ class Group(Token):
 
     def gen_file_name(self, id: int):
         # traverse tree
-        self.outfile = ".buffer/%03d.wav" % id
+        self.outfile = "/%03d.wav" % id
         id += 1
         for token in self.tokens:
             id = token.gen_file_name(id)
@@ -96,9 +101,9 @@ class Speech(Sound):
         self.text = text
 
     def synthesize(self) -> bool:
-        print("Synthesizing %s speaking: %s" % (self.speaker, self.text))
         speech_synthesizer.update_model(self.speaker)
         audio = speech_synthesizer.end_to_end_infer(self.text, None)
+        print("Synthesizing %s speaking: %s" % (self.speaker, self.text))
         if audio is not None:
             sf.write(self.outfile, audio.to("cpu").numpy(), 22050)
             return True
@@ -118,14 +123,13 @@ class SoundEffect(Sound):
 
     def synthesize(self):
         print("Synthesizing sound effect %s" % self.index)
-        #shutil.copy("sound-effects/%s.wav" % self.index, self.outfile)
         if os.path.exists("sound-effects/%s.wav" % self.index):
             shutil.copy("sound-effects/%s.wav" % self.index, self.outfile)
             return True
-        elif os.path.exists("sound-effects/%s.mp3" % self.index):
-            buf: AudioSegment
-            buf = AudioSegment().from_mp3("sound-effects/%s.mp3" % self.index)
-            buf.export(self.outfile, format="wav")
+        #elif os.path.exists("sound-effects/%s.mp3" % self.index):
+        #    buf: AudioSegment
+        #    buf = AudioSegment().from_mp3("sound-effects/%s.mp3" % self.index)
+        #    buf.export(self.outfile, format="wav")
 
     def __str__(self) -> str:
         return "SoundEffect(%d)" % self.index
@@ -136,101 +140,59 @@ class SoundFilter(Token):
     index: str
 
     def synthesize(self):
-        self.group.synthesize()
+        if not self.group.synthesize():
+            return False
 
-        fx = ()
+        tfm = sox.Transformer()
 
         if self.index == "1":
             # room echo
-            fx = (
-                AudioEffectsChain()
-                .reverb(reverberance=50, room_scale=50)
-            )
+            tfm.reverb(50, room_scale=25)
         elif self.index == "2":
             # hall echo
-            fx = (
-                AudioEffectsChain()
-                .reverb(reverberance=75, room_scale=75, wet_gain=1)
-            )
+            tfm.reverb(75, room_scale=75, wet_gain=1)
         elif self.index == "3":
             # outside echo
-            fx = (
-                AudioEffectsChain()
-                .reverb(reverberance=0, room_scale=5)
-            )
+            tfm.reverb(5, room_scale=5)
         elif self.index == "4":
             # pitch down
-            fx = (
-                AudioEffectsChain()
-                .pitch(shift=-600)  # half an octave
-            )
-            pass
+            tfm.pitch(-6)  # half an octave
         elif self.index == "5":
             # pitch up
-            fx = (
-                AudioEffectsChain()
-                .pitch(shift=600)
-            )
-            pass
+            tfm.pitch(6)  # half an octave
         elif self.index == "6":
             # telephone
-            fx = (
-                AudioEffectsChain()
-                .highpass(800)
-                .gain(2)
-            )
-            pass
+            tfm.highpass(800).gain(2)
         elif self.index == "7":
             # muffled
-            fx = (
-                AudioEffectsChain()
-                .lowpass(1200)
-            )
-            pass
+            tfm.lowpass(1200).gain(1)
         elif self.index == "8":
             # quieter
-            fx = (
-                AudioEffectsChain()
-                .vol(gain=-4)
-            )
-            pass
+            tfm.gain(-4)
         elif self.index == "9":
             # ghost
-            fx = (
-                AudioEffectsChain()
-                .reverse()
-                .reverb(reverberance=100, wet_gain=1)
-                .reverse()
-                .reverb()
-            )
-            pass
+            (tfm
+             .pad(0.5, 0.5)
+             .reverse()
+             .reverb(reverberance=50, wet_gain=1)
+             .reverse()
+             .reverb())
         elif self.index == "10":
             # chorus
-            fx = (
-                AudioEffectsChain()
-                .chorus(50, 50, 50)
-            )
-            pass
+            tfm.chorus()
         elif self.index == "11":
             # slow down
-            fx = (
-                AudioEffectsChain()
-                .tempo(0.5)
-            )
-            pass
+            tfm.tempo(0.5)
         elif self.index == "12":
             # speed up
-            fx = (
-                AudioEffectsChain()
-                .tempo(1.5, segment=41)
-            )
-            pass
+            tfm.tempo(1.5)
+        elif self.index == "13":
+            # velcuz real voice
+            tfm.treble(4).bass(-4).pitch(2)
 
         print("Synthesizing filter %s" % self.index)
-        if isinstance(fx, AudioEffectsChain):
-            fx(self.group.outfile, self.outfile)  # type: ignore
-            return True
-        return False
+        tfm.build_file(self.group.outfile, self.outfile)
+        return True
 
     def __str__(self) -> str:
         if self.group is not None:
@@ -245,5 +207,5 @@ class SoundFilter(Token):
 
     def gen_file_name(self, id: int):
         # traverse tree
-        self.outfile = ".buffer/%03d.wav" % id
+        self.outfile = "%s/%03d.wav" % (BUFFER_PATH, id)
         return self.group.gen_file_name(id + 1)
