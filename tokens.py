@@ -47,19 +47,23 @@ class Group(Token):
         if len(self.tokens) == 0:
             return False
 
-        #buffer = AudioSegment.empty()
         combiner = sox.Combiner()
         filenames: list[str] = []
 
         for token in self.tokens:
             if token.synthesize():
                 filenames.append(token.outfile)
+
         print("Synthesizing group: " + ", ".join(filenames))
+
         if len(filenames) > 1:
             combiner.build(filenames, self.outfile, "concatenate")
-        else:
-            #combiner.build(filenames, self.outfile, "concatenate")
+        elif len(filenames) == 1:
             shutil.copy(filenames[0], self.outfile)
+        else:
+            raise Exception("when nub write code, das a bing problem")
+            # ???
+            return False
         return True
 
     def __str__(self) -> str:
@@ -83,7 +87,7 @@ class Group(Token):
 
     def gen_file_name(self, id: int):
         # traverse tree
-        self.outfile = "/%03d.wav" % id
+        self.outfile = "%s/%03d.wav" % (BUFFER_PATH, id)
         id += 1
         for token in self.tokens:
             id = token.gen_file_name(id)
