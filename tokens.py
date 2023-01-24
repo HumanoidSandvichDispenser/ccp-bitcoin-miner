@@ -132,20 +132,26 @@ class SoundEffect(Sound):
     def synthesize(self):
         print("Synthesizing sound effect %s" % self.index)
 
-        mp3_file = f"{EFFECTS_PATH}/${self.index}.mp3"
+        audio_file = None
+        mp3_file = f"{EFFECTS_PATH}/{self.index}.mp3"
+        wav_file = f"{EFFECTS_PATH}/{self.index}.wav"
         if os.path.exists(mp3_file):
-            #shutil.copy(mp3_file, self.outfile)
-            sox.Transformer().build_file(mp3_file, self.outfile)
-            return True
+            audio_file = mp3_file
+        elif os.path.exists(wav_file):
+            audio_file = wav_file
 
-        wav_file = f"{EFFECTS_PATH}/${self.index}.wav"
-        if os.path.exists(wav_file):
-            shutil.copy(wav_file, self.outfile)
-            return True
+        if audio_file is None:
+            return False
+
+        (sox
+         .Transformer()
+         .convert(samplerate=22050)
+         .build_file(audio_file, self.outfile))
+
+        return True
 
     def __str__(self) -> str:
         return "SoundEffect(%d)" % self.index
-
 
 class SoundFilter(Token):
     group: Group | Token
