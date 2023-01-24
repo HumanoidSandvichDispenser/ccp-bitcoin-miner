@@ -127,9 +127,16 @@ class SoundEffect(Sound):
 
     def synthesize(self):
         print("Synthesizing sound effect %s" % self.index)
-        sound_file = f"{EFFECTS_PATH}/${self.index}.mp3"
-        if os.path.exists(sound_file):
-            shutil.copy(sound_file, self.outfile)
+
+        mp3_file = f"{EFFECTS_PATH}/${self.index}.mp3"
+        if os.path.exists(mp3_file):
+            #shutil.copy(mp3_file, self.outfile)
+            sox.Transformer().build_file(mp3_file, self.outfile)
+            return True
+
+        wav_file = f"{EFFECTS_PATH}/${self.index}.wav"
+        if os.path.exists(wav_file):
+            shutil.copy(wav_file, self.outfile)
             return True
 
     def __str__(self) -> str:
