@@ -1,11 +1,14 @@
+# Chinese Communist Party Bitcoin Miner
+
 Tacotron 2 synthesis wrapper with syntax based on/similar to notaistreamer's
 Forsen TTS donation system.
 
-<center>
-<img src="https://cdn.7tv.app/emote/6109df1e49dcebc8a39247eb/2x.webp">
-<br>
-+1 BTC +10 社会信用
-</center>
+<p align="center">
+    <img src="https://cdn.7tv.app/emote/6109df1e49dcebc8a39247eb/2x.webp">
+    <img src="https://cdn.7tv.app/emote/6144a5317b14fdf700b94310/2x.webp">
+    <br>
+    +1 BTC +10 社会信用
+</p>
 
 # Installation
 
