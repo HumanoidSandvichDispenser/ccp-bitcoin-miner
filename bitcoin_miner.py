@@ -40,8 +40,6 @@ else:
     from models import Generator  # type: ignore
 
 
-from tqdm.notebook import tqdm
-
 class BitcoinMiner():
     thisdict = {}
     HIFIGAN_ID = "1qpgI41wNXFcH-iKq1Y42JlBC9j0je8PW"
@@ -56,26 +54,24 @@ class BitcoinMiner():
 
     def __init__(self, is_using_cuda=True, cpu_threads=1):
         # allows user to choose CPU or CUDA inference
-        with tqdm(total=1, leave=False) as pbar:
-            import os
-            #pbar.update(1) # downloaded TT2 and HiFi-GAN
-            import gdown
+        import os
+        #pbar.update(1) # downloaded TT2 and HiFi-GAN
+        import gdown
 
-            #import IPython.display as ipd
-            import numpy as np
-            import torch
-            import json
+        #import IPython.display as ipd
+        import numpy as np
+        import torch
+        import json
 
-            if is_using_cuda:
-                self.device = torch.device("cuda")
-            else:
-                self.device = torch.device("cpu")
-                torch.set_num_threads(cpu_threads)
+        if is_using_cuda:
+            self.device = torch.device("cuda")
+        else:
+            self.device = torch.device("cpu")
+            torch.set_num_threads(cpu_threads)
 
-            print("INFO: torch.device.type == \"%s\"" % self.device.type)
+        print("INFO: torch.device.type == \"%s\"" % self.device.type)
 
-            self.hifigan, _ = self.get_hifigan()
-            pbar.update(1) # Downloaded and Set up HiFi-GAN
+        self.hifigan, _ = self.get_hifigan()
 
     def arpa(self, text, punctuation=r"!?,.;", EOS_Token=True):
         out = ""
