@@ -151,25 +151,28 @@ class SoundFilter(Token):
         if not self.group.synthesize():
             return False
 
+        print("Synthesizing filter %s" % self.index)
+
         tfm = sox.Transformer()
+
+        def err(message):
+            print("Failed synthesizing filter. Synthesizing without filter.")
+            shutil.copy(self.group.outfile, self.outfile)
+            return True
 
         if os.path.exists(f"{FILTERS_PATH}/{self.index}"):
             try:
                 return_code = subprocess.call([f"{FILTERS_PATH}/{self.index}",
                                  self.group.outfile,
                                  self.outfile])
-                return return_code == 0
+                if return_code != 0:
+                    return err(f"Script returned {return_code}")
+                return True
             except PermissionError:
-                print(f"Permission denied while processing {self.index}. " +
-                      "Does the file have execute (+x) permission?")
-                print("Failed synthesizing filter. Synthesizing without filter.")
-                shutil.copy(self.group.outfile, self.outfile)
-                return True
+                return err(f"Permission denied while processing {self.index}. " +
+                           "Does the file have execute (+x) permission?")
             except FileNotFoundError:
-                print(f"{FILTERS_PATH}/{self.index} does not exist.")
-                print("Failed synthesizing filter. Synthesizing without filter.")
-                shutil.copy(self.group.outfile, self.outfile)
-                return True
+                return err(f"{FILTERS_PATH}/{self.index} does not exist.")
 
         if self.index == "1":
             # room echo
@@ -213,7 +216,6 @@ class SoundFilter(Token):
             # speed up
             tfm.tempo(1.5)
 
-        print("Synthesizing filter %s" % self.index)
         tfm.build_file(self.group.outfile, self.outfile)
         return True
 
