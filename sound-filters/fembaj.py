@@ -3,7 +3,7 @@
 #
 # Copyright © 2023 sandvich <sandvich@archtop>
 #
-# Distributed under terms of the MIT license.
+# Distributed under terms of the GPLv3 license.
 
 # This is the python script version of the fembaj.sh filter
 

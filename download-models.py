@@ -3,7 +3,7 @@
 #
 # Copyright © 2023 sandvich <sandvich@archtop>
 #
-# Distributed under terms of the MIT license.
+# Distributed under terms of the GPLv3 license.
 
 
 import os
