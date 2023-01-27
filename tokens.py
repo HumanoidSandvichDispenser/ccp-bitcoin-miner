@@ -110,8 +110,8 @@ class Speech(Sound):
 
     def synthesize(self) -> bool:
         speech_synthesizer.update_model(self.speaker)
-        audio = speech_synthesizer.end_to_end_infer(self.text, None)
         print("Synthesizing %s speaking: %s" % (self.speaker, self.text))
+        audio = speech_synthesizer.end_to_end_infer(self.text, None)
         if audio is not None:
             sf.write(self.outfile, audio.to("cpu").numpy(), 22050)
             return True
