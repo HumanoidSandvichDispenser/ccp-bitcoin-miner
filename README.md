@@ -104,6 +104,37 @@ Sound effects are mostly the same, except that sound names can be
 anything; `[abc]` will use the file `sound-effects/abc.wav`.
 
 notaistreamer's sound effects from 101soundboard can be downloaded [from here
-](https://drive.google.com/drive/folders/198TMltRvKrJHRq1gcBB8xwOytoMz0v3C)
+](https://drive.google.com/drive/folders/1g3gY0xG-F_4HFrlXSk55sbgoC5QNTRQt)
 (5.6M), which should save a lot of time from having to click every single sound
 effect and wait for an advertisement.
+
+# HTTP Server
+
+You can host an HTTP server with `flask`, which allows you to synthesize audio
+on another machine or automate synthesis. This can be useful when stream
+sniping, for example.
+
+The HTTP server will accept POST requests at `/`. It will take data as plain
+text and synthesize audio from it with flask's `send_file`.
+
+On the machine you will be hosting the server on:
+
+```
+flask run
+```
+
+On your local machine that will make requests:
+
+```
+curl -X POST http://{IP_ADDRESS_OF_SERVER}:{PORT} \
+    -d "udisen: hello today will show how can stream snipe with text to speech"
+    --output audio.wav
+```
+
+## Supa Streamsaver Rofi/dmenu Script
+
+``` sh
+rofi -dmenu | curl -X POST http://{IP_ADDRESS}:{PORT} \
+    -d @- \
+    --output /tmp/tts.wav && mpv /tmp/tts.wav
+```
