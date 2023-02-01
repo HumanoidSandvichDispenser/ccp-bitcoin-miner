@@ -127,11 +127,13 @@ On your local machine that will make requests:
 
 ```
 curl -X POST http://{IP_ADDRESS_OF_SERVER}:{PORT} \
-    -d "udisen: hello today will show how can stream snipe with text to speech"
+    -d "udisen: hello today will show how can stream snipe with text to speech" \
     --output audio.wav
 ```
 
 ## Supa Streamsaver Rofi/dmenu Script
+
+This takes input from `rofi` and synthesizes speech then plays it back.
 
 ``` sh
 rofi -dmenu | curl -X POST http://{IP_ADDRESS}:{PORT} \
