@@ -17,6 +17,9 @@ BUFFER_PATH = ".buffer"
 EFFECTS_PATH = "sound-effects"
 FILTERS_PATH = "sound-filters"
 
+if not os.path.exists(BUFFER_PATH):
+    os.makedirs(BUFFER_PATH)
+
 speech_synthesizer: BitcoinMiner
 
 
